@@ -14,7 +14,7 @@ This module adds customer groups, in which you can put customers.
 Add it in your main Thelia composer.json file
 
 ```
-composer require thelia/customer-group-module:~0.1
+composer require thelia/customer-group-module:~0.2
 ```
 
 ## Configuration

@@ -5,6 +5,7 @@ namespace CustomerGroup\Loop;
 use CustomerGroup\Model\CustomerCustomerGroup as CustomerGroupModel;
 use CustomerGroup\Model\CustomerCustomerGroupQuery;
 use Propel\Runtime\ActiveQuery\Criteria;
+use Propel\Runtime\ActiveQuery\ModelCriteria;
 use Thelia\Core\Template\Element\BaseLoop;
 use Thelia\Core\Template\Element\LoopResult;
 use Thelia\Core\Template\Element\LoopResultRow;
@@ -17,7 +18,7 @@ use Thelia\Core\Template\Loop\Argument\ArgumentCollection;
  */
 class CustomerCustomerGroup extends BaseLoop implements PropelSearchLoopInterface
 {
-    protected function getArgDefinitions()
+    protected function getArgDefinitions(): ArgumentCollection
     {
         return new ArgumentCollection(
             Argument::createIntListTypeArgument("customer"),
@@ -25,7 +26,7 @@ class CustomerCustomerGroup extends BaseLoop implements PropelSearchLoopInterfac
         );
     }
 
-    public function buildModelCriteria()
+    public function buildModelCriteria(): CustomerCustomerGroupQuery|ModelCriteria
     {
         $search = CustomerCustomerGroupQuery::create();
 
@@ -40,7 +41,7 @@ class CustomerCustomerGroup extends BaseLoop implements PropelSearchLoopInterfac
         return $search;
     }
 
-    public function parseResults(LoopResult $loopResult)
+    public function parseResults(LoopResult $loopResult): LoopResult
     {
         /** @var CustomerGroupModel $customerCustomerGroup */
         foreach ($loopResult->getResultDataCollection() as $customerCustomerGroup) {

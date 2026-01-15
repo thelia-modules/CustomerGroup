@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<database name="thelia" defaultIdMethod="native">
+<database name="TheliaMain" defaultIdMethod="native">
     <table name="customer_group" description="The list of customer groups" namespace="CustomerGroup\Model">
         <column name="code" type="varchar" required="true" size="45" />
         <column name="title" type="varchar" size="255" />

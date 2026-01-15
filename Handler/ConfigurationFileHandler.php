@@ -4,6 +4,8 @@ namespace CustomerGroup\Handler;
 
 use CustomerGroup\Model\CustomerGroup;
 use CustomerGroup\Model\CustomerGroupQuery;
+use Propel\Runtime\Exception\PropelException;
+use SimpleXMLElement;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\Util\XmlUtils;
 use Symfony\Component\Finder\Finder;
@@ -16,13 +18,13 @@ use Thelia\Model\Module;
 class ConfigurationFileHandler
 {
     /**
-     * Find, parse and load customer group configuration file for module
+     * Find, parse, and load customer group configuration file for the module
      *
      * @param Module $module A module object
      *
-     * @throws InvalidConfigurationException
+     * @throws InvalidConfigurationException|PropelException
      */
-    public function loadConfigurationFile(Module $module)
+    public function loadConfigurationFile(Module $module): void
     {
         $finder = (new Finder)
             // TODO: Flip when yaml parsing will be up
@@ -47,33 +49,33 @@ class ConfigurationFileHandler
     }
 
     /**
-     * Get config from xml file
+     * Get config from an XML file
      *
      * @param SplFileInfo $file XML file
      *
      * @return array Customer group module configuration
      */
-    protected function parseXml(SplFileInfo $file)
+    protected function parseXml(SplFileInfo $file): array
     {
         $dom = XmlUtils::loadFile($file, realpath(dirname(__DIR__) . DS . 'Schema' . DS . 'customer-group.xsd'));
-        /** @var \Symfony\Component\DependencyInjection\SimpleXMLElement $xml */
+        /** @var SimpleXMLElement $xml */
         $xml = simplexml_import_dom($dom, '\\Symfony\\Component\\DependencyInjection\\SimpleXMLElement');
 
         $parsedConfig = [];
-        /** @var \Symfony\Component\DependencyInjection\SimpleXMLElement $customerGroupDefinition */
+        /** @var SimpleXMLElement $customerGroupDefinition */
         foreach ($xml->customergroup as $customerGroupDefinition) {
             $descriptive = [];
-            /** @var \Symfony\Component\DependencyInjection\SimpleXMLElement $descriptiveDefinition */
+            /** @var SimpleXMLElement $descriptiveDefinition */
             foreach ($customerGroupDefinition->descriptive as $descriptiveDefinition) {
                 $descriptive[] = [
-                    'locale' => $descriptiveDefinition->getAttributeAsPhp('locale'),
+                    'locale' => $descriptiveDefinition->locale,
                     'title' => (string)$descriptiveDefinition->title,
                     'description' => (string)$descriptiveDefinition->description
                 ];
             }
 
             $parsedConfig['customer_group'][] = [
-                'code' => $customerGroupDefinition->getAttributeAsPhp('code'),
+                'code' => $customerGroupDefinition->code,
                 'descriptive' => $descriptive
             ];
         }
@@ -84,13 +86,13 @@ class ConfigurationFileHandler
     }
 
     /**
-     * Get config from yml file
+     * Get config from the yml file
      *
-     * @param SplFileInfo $file Yaml file
+     * @param SplFileInfo $file YAML file
      *
      * @return array Customer group module configuration
      */
-    protected function parseYml(SplFileInfo $file)
+    protected function parseYml(SplFileInfo $file): array
     {
         //@todo
 
@@ -98,11 +100,12 @@ class ConfigurationFileHandler
     }
 
     /**
-     * Save new customer group to database
+     * Save a new customer group to a database
      *
      * @param array $moduleConfiguration Customer group module configuration
+     * @throws PropelException
      */
-    protected function applyConfig(array $moduleConfiguration)
+    protected function applyConfig(array $moduleConfiguration): void
     {
         foreach ($moduleConfiguration['customer_group'] as $customerGroupData) {
             if (CustomerGroupQuery::create()->findOneByCode($customerGroupData['code']) === null) {
@@ -134,8 +137,9 @@ class ConfigurationFileHandler
 
     /**
      * Remove is_default flag
+     * @throws PropelException
      */
-    protected function resetDefault()
+    protected function resetDefault(): void
     {
         $defaultGroups = CustomerGroupQuery::create()
             ->filterByIsDefault(true)

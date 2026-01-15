@@ -4,8 +4,8 @@ namespace CustomerGroup\Handler;
 
 use CustomerGroup\CustomerGroup;
 use CustomerGroup\Model\CustomerCustomerGroupQuery;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Thelia\Core\HttpFoundation\Request;
+use Propel\Runtime\Exception\PropelException;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Thelia\Core\Security\SecurityContext;
 use Thelia\Model\Customer;
 
@@ -14,15 +14,8 @@ use Thelia\Model\Customer;
  */
 class CustomerGroupHandler
 {
-    /** @var ContainerInterface */
-    protected $container;
-
-    /**
-     * @param ContainerInterface $container
-     */
-    public function __construct(ContainerInterface $container)
+    public function __construct(protected RequestStack $requestStack, protected SecurityContext $securityContext)
     {
-        $this->container = $container;
     }
 
     /**
@@ -30,14 +23,9 @@ class CustomerGroupHandler
      *
      * @return array|null
      */
-    public function getGroup()
+    public function getGroup(): ?array
     {
-        /** @var Request $request */
-        $request = $this->container->get('request');
-
-        $groupInfo = $request->getSession()->get(CustomerGroup::getModuleCode());
-
-        return $groupInfo;
+        return $this->requestStack->getSession()->get(CustomerGroup::getModuleCode());
     }
 
     /**
@@ -47,7 +35,7 @@ class CustomerGroupHandler
      *
      * @uses getGroup()
      */
-    public function getGroupCode()
+    public function getGroupCode(): ?string
     {
         $customerGroup = $this->getGroup();
 
@@ -63,12 +51,9 @@ class CustomerGroupHandler
      *
      * @uses getGroupCode()
      */
-    public function checkGroup($groupCode)
+    public function checkGroup(string $groupCode): bool
     {
-        /** @var SecurityContext $securityContext */
-        $securityContext = $this->container->get('thelia.securityContext');
-
-        return $securityContext->hasCustomerUser() && $this->getGroupCode() === $groupCode;
+        return $this->securityContext->hasCustomerUser() && $this->getGroupCode() === $groupCode;
     }
 
     /**
@@ -78,8 +63,9 @@ class CustomerGroupHandler
      * @param string $groupCode
      *
      * @return bool
+     * @throws PropelException
      */
-    public function checkCustomerHasGroup(Customer $customer, $groupCode)
+    public function checkCustomerHasGroup(Customer $customer, string $groupCode): bool
     {
         $group = CustomerCustomerGroupQuery::create()
             ->filterByCustomer($customer)

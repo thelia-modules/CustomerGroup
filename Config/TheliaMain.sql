@@ -31,7 +31,7 @@ CREATE TABLE `customer_customer_group`
     `customer_id` INTEGER NOT NULL,
     `customer_group_id` INTEGER NOT NULL,
     PRIMARY KEY (`customer_id`,`customer_group_id`),
-    INDEX `FI_customer_group_id` (`customer_group_id`),
+    INDEX `fi_customer_group_id` (`customer_group_id`),
     CONSTRAINT `fk_customer_id`
         FOREIGN KEY (`customer_id`)
         REFERENCES `customer` (`id`)
@@ -57,7 +57,7 @@ CREATE TABLE `customer_group_i18n`
     `title` VARCHAR(255),
     `description` LONGTEXT,
     PRIMARY KEY (`id`,`locale`),
-    CONSTRAINT `customer_group_i18n_FK_1`
+    CONSTRAINT `customer_group_i18n_fk_6a2a90`
         FOREIGN KEY (`id`)
         REFERENCES `customer_group` (`id`)
         ON DELETE CASCADE

@@ -13,12 +13,12 @@
         <language>en_US</language>
         <language>fr_FR</language>
     </languages>
-    <version>0.1.5</version>
+    <version>0.2.0</version>
     <author>
         <name>Thelia</name>
         <email>info@thelia.net</email>
     </author>
     <type>classic</type>
-    <thelia>2.1.0</thelia>
+    <thelia>2.6.0</thelia>
     <stability>beta</stability>
 </module>

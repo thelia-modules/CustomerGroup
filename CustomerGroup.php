@@ -6,6 +6,7 @@ use CustomerGroup\Handler\ConfigurationFileHandler;
 use CustomerGroup\Model\CustomerGroupQuery;
 use Propel\Runtime\Connection\ConnectionInterface;
 use Propel\Runtime\Exception\PropelException;
+use Symfony\Component\DependencyInjection\Loader\Configurator\ServicesConfigurator;
 use Thelia\Install\Database;
 use Thelia\Model\Module;
 use Thelia\Model\ModuleQuery;
@@ -19,35 +20,21 @@ class CustomerGroup extends BaseModule
     /**
      * @var string Translation domain name
      */
-    const MESSAGE_DOMAIN = 'customergroup';
+    const string MESSAGE_DOMAIN = 'customergroup';
 
-    public function preActivation(ConnectionInterface $con = null)
+    /**
+     * @throws PropelException
+     */
+    public function postActivation(ConnectionInterface $con = null): void
     {
-        $insert = false;
-        $activate = true;
+        parent::postActivation($con);
 
-        try {
-            CustomerGroupQuery::create()->findOne();
-        } catch (PropelException $exception) {
-            $insert = true;
+        if (!self::getConfigValue('is_initialized',null)){
+            $database = new Database($con);
+            $database->insertSql(null, [__DIR__ . "/Config/TheliaMain.sql"]);
+            self::setConfigValue('is_initialized', 1);
         }
 
-        if ($insert) {
-            try {
-                $database = new Database($con);
-
-                // Insert Models
-                $database->insertSql(null, [__DIR__ . DS . 'Config' . DS . 'thelia.sql']);
-            } catch (\PDOException $exception) {
-                $activate = false;
-            }
-        }
-
-        return $activate;
-    }
-
-    public function postActivation(ConnectionInterface $con = null)
-    {
         $configurationFileHandler = new ConfigurationFileHandler;
 
         $modules = ModuleQuery::create()->findByActivate(BaseModule::IS_ACTIVATED);
@@ -55,5 +42,12 @@ class CustomerGroup extends BaseModule
         foreach ($modules as $module) {
             $configurationFileHandler->loadConfigurationFile($module);
         }
+    }
+
+    public static function configureServices(ServicesConfigurator $servicesConfigurator): void {
+        $servicesConfigurator->load(self::getModuleCode().'\\', __DIR__)
+            ->exclude([THELIA_MODULE_DIR . ucfirst(self::getModuleCode()). "/I18n/*"])
+            ->autowire(true)
+            ->autoconfigure(true);
     }
 }
