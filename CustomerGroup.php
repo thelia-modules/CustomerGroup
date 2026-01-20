@@ -20,7 +20,7 @@ class CustomerGroup extends BaseModule
     /**
      * @var string Translation domain name
      */
-    const string MESSAGE_DOMAIN = 'customergroup';
+    const MESSAGE_DOMAIN = 'customergroup';
 
     /**
      * @throws PropelException
