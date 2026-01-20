@@ -2,56 +2,39 @@
 
 namespace CustomerGroup\Event;
 
-use Symfony\Component\EventDispatcher\Event;
+
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Event for customer group creation.
  */
 class CreateCustomerGroup extends Event
 {
-    /** @var string */
-    protected $code;
-    /** @var boolean */
-    protected $is_default;
-    /** @var string */
-    protected $title;
-    /** @var string */
-    protected $description;
+    protected string $code;
+    protected bool $is_default;
+    protected string $title;
+    protected string $description;
 
-    /**
-     * @param string $code
-     * @return $this
-     */
-    public function setCode($code)
+    public function setCode($code): static
     {
         $this->code = $code;
 
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getCode()
+    public function getCode(): string
     {
         return $this->code;
     }
 
-    /**
-     * @param boolean $is_default
-     * @return $this
-     */
-    public function setIsDefault($is_default)
+    public function setIsDefault($is_default): static
     {
         $this->is_default = $is_default;
 
         return $this;
     }
 
-    /**
-     * @return boolean
-     */
-    public function getIsDefault()
+    public function getIsDefault(): bool
     {
         return $this->is_default;
     }

@@ -6,24 +6,4 @@
         <loop name="customergroup" class="CustomerGroup\Loop\CustomerGroup" />
         <loop name="customercustomergroup" class="CustomerGroup\Loop\CustomerCustomerGroup" />
     </loops>
-
-    <services>
-        <service id="customer_group.handler.configuration_file" class="CustomerGroup\Handler\ConfigurationFileHandler">
-        </service>
-
-        <service id="customer_group.listener.module_event" class="CustomerGroup\EventListener\ModuleEventListener">
-            <argument type="service" id="customer_group.handler.configuration_file" />
-
-            <tag name="kernel.event_subscriber" />
-        </service>
-
-        <service id="customer_group.listener.customer_customer_group" class="CustomerGroup\EventListener\CustomerCustomerGroup" scope="request">
-            <tag name="kernel.event_subscriber" />
-            <argument type="service" id="request" />
-        </service>
-
-        <service id="customer_group.handler" class="CustomerGroup\Handler\CustomerGroupHandler" scope="request">
-            <argument type="service" id="service_container" />
-        </service>
-    </services>
 </config>

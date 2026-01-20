@@ -3,6 +3,7 @@
 namespace CustomerGroup\EventListener;
 
 use CustomerGroup\Handler\ConfigurationFileHandler;
+use Propel\Runtime\Exception\PropelException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Thelia\Core\Event\Module\ModuleToggleActivationEvent;
 use Thelia\Core\Event\TheliaEvents;
@@ -17,7 +18,7 @@ class ModuleEventListener implements EventSubscriberInterface
     /**
      * @var ConfigurationFileHandler Configuration file handler service
      */
-    protected $configurationFileHandler;
+    protected ConfigurationFileHandler $configurationFileHandler;
 
     /**
      * Class constructor
@@ -29,7 +30,7 @@ class ModuleEventListener implements EventSubscriberInterface
         $this->configurationFileHandler = $configurationFileHandler;
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             TheliaEvents::MODULE_TOGGLE_ACTIVATION => ['loadCustomerGroupConfigFile', 192]
@@ -40,8 +41,9 @@ class ModuleEventListener implements EventSubscriberInterface
      * Load customer group definitions
      *
      * @param ModuleToggleActivationEvent $event A module toggle activation event
+     * @throws PropelException
      */
-    public function loadCustomerGroupConfigFile(ModuleToggleActivationEvent $event)
+    public function loadCustomerGroupConfigFile(ModuleToggleActivationEvent $event): void
     {
         $event->setModule(ModuleQuery::create()->findPk($event->getModuleId()));
 

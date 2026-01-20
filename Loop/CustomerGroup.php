@@ -5,6 +5,8 @@ namespace CustomerGroup\Loop;
 use CustomerGroup\Model\CustomerGroup as CustomerGroupModel;
 use CustomerGroup\Model\CustomerGroupQuery;
 use Propel\Runtime\ActiveQuery\Criteria;
+use Propel\Runtime\ActiveQuery\ModelCriteria;
+use Propel\Runtime\Exception\PropelException;
 use Thelia\Core\Template\Element\BaseI18nLoop;
 use Thelia\Core\Template\Element\LoopResult;
 use Thelia\Core\Template\Element\LoopResultRow;
@@ -19,7 +21,7 @@ use Thelia\Type\TypeCollection;
  */
 class CustomerGroup extends BaseI18nLoop implements PropelSearchLoopInterface
 {
-    protected function getArgDefinitions()
+    protected function getArgDefinitions(): ArgumentCollection
     {
         return new ArgumentCollection(
             Argument::createIntListTypeArgument("id"),
@@ -49,7 +51,7 @@ class CustomerGroup extends BaseI18nLoop implements PropelSearchLoopInterface
         );
     }
 
-    public function buildModelCriteria()
+    public function buildModelCriteria(): CustomerGroupQuery|ModelCriteria
     {
         $search = CustomerGroupQuery::create();
 
@@ -66,9 +68,9 @@ class CustomerGroup extends BaseI18nLoop implements PropelSearchLoopInterface
             $search->filterById($id, Criteria::IN);
         }
 
-        if (true === $isDefault = $this->getArgValue("is_default")) {
+        if ($this->getArgValue("is_default")) {
             $search->filterByIsDefault(1, Criteria::EQUAL);
-        } elseif (false === $isDefault = $this->getArgValue("is_default")) {
+        } elseif (!$this->getArgValue("is_default")) {
             $search->filterByIsDefault(0, Criteria::EQUAL);
         }
 
@@ -124,7 +126,10 @@ class CustomerGroup extends BaseI18nLoop implements PropelSearchLoopInterface
         return $search;
     }
 
-    public function parseResults(LoopResult $loopResult)
+    /**
+     * @throws PropelException
+     */
+    public function parseResults(LoopResult $loopResult): LoopResult
     {
         /** @var CustomerGroupModel $customerGroup */
         foreach ($loopResult->getResultDataCollection() as $customerGroup) {

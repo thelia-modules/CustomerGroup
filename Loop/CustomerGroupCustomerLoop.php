@@ -4,12 +4,17 @@ namespace CustomerGroup\Loop;
 
 use CustomerGroup\Model\Map\CustomerCustomerGroupTableMap;
 use CustomerGroup\Model\Map\CustomerGroupTableMap;
+use PDO;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\ActiveQuery\Join;
+use Propel\Runtime\ActiveQuery\ModelCriteria;
+use Propel\Runtime\Exception\PropelException;
 use Thelia\Core\Template\Element\LoopResult;
 use Thelia\Core\Template\Loop\Argument\Argument;
+use Thelia\Core\Template\Loop\Argument\ArgumentCollection;
 use Thelia\Core\Template\Loop\Customer;
 use Thelia\Model\Customer as CustomerModel;
+use Thelia\Model\CustomerQuery;
 use Thelia\Model\Map\CustomerTableMap;
 use Thelia\Type\BooleanOrBothType;
 
@@ -18,22 +23,22 @@ use Thelia\Type\BooleanOrBothType;
  */
 class CustomerGroupCustomerLoop extends Customer
 {
-    public function buildModelCriteria()
+    public function buildModelCriteria(): CustomerQuery|ModelCriteria|null
     {
         $customerQuery = parent::buildModelCriteria();
 
         $customerQuery->addJoinObject(
             new Join(
-                CustomerTableMap::ID,
-                CustomerCustomerGroupTableMap::CUSTOMER_ID,
+                CustomerTableMap::COL_ID,
+                CustomerCustomerGroupTableMap::COL_CUSTOMER_ID,
                 Criteria::LEFT_JOIN
             ),
             "customer_customer_group_join"
         );
         $customerQuery->addJoinObject(
             new Join(
-                CustomerCustomerGroupTableMap::CUSTOMER_GROUP_ID,
-                CustomerGroupTableMap::ID,
+                CustomerCustomerGroupTableMap::COL_CUSTOMER_GROUP_ID,
+                CustomerGroupTableMap::COL_ID,
                 Criteria::LEFT_JOIN
             ),
             "customer_group_join"
@@ -43,7 +48,7 @@ class CustomerGroupCustomerLoop extends Customer
             $customerQuery->where(
                 '`customer_group`.`ID` IN (?)',
                 implode(",", $customerGroupId),
-                \PDO::PARAM_INT
+                PDO::PARAM_INT
             );
         }
 
@@ -53,13 +58,13 @@ class CustomerGroupCustomerLoop extends Customer
                 $customerQuery->where(
                     '`customer_group`.`IS_DEFAULT` = ?',
                     1,
-                    \PDO::PARAM_INT
+                    PDO::PARAM_INT
                 );
             } elseif ($customerGroupIsDefault === false) {
                 $customerQuery->where(
                     '`customer_group`.`IS_DEFAULT` = ?',
                     0,
-                    \PDO::PARAM_INT
+                    PDO::PARAM_INT
                 );
             }
         }
@@ -68,7 +73,7 @@ class CustomerGroupCustomerLoop extends Customer
             $customerQuery->where(
                 '`customer_group`.`CODE` LIKE ?',
                 '%' . $customerGroupCode . '%',
-                \PDO::PARAM_STR
+                PDO::PARAM_STR
             );
         }
 
@@ -79,7 +84,7 @@ class CustomerGroupCustomerLoop extends Customer
         return $customerQuery;
     }
 
-    protected function getArgDefinitions()
+    protected function getArgDefinitions(): ArgumentCollection
     {
         $argumentCollection = parent::getArgDefinitions();
 
@@ -98,7 +103,10 @@ class CustomerGroupCustomerLoop extends Customer
         return $argumentCollection;
     }
 
-    public function parseResults(LoopResult $loopResult)
+    /**
+     * @throws PropelException
+     */
+    public function parseResults(LoopResult $loopResult): LoopResult
     {
         $loopResult = parent::parseResults($loopResult);
 
